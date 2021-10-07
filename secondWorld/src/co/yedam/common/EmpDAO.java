@@ -9,19 +9,19 @@ public class EmpDAO extends DAO {
 	public List<Employee> getEmpList() {
 		connect();
 		List<Employee> list = new ArrayList<>();
-		
+
 		String sql = "select * from empl_demo order by 1 asc";
 		try {
 			stmt = conn.createStatement();
 			rs = stmt.executeQuery(sql);
-			while(rs.next()) {
+			while (rs.next()) {
 				Employee emp = new Employee();
 				emp.setEmployeeId(rs.getInt("employee_id"));
 				emp.setLastName(rs.getString("last_name"));
 				emp.setEmail(rs.getString("email"));
 				emp.setHireDate(rs.getString("hire_date").substring(0, 10));
 				emp.setJobId(rs.getString("job_id"));
-				
+
 				list.add(emp);
 			}
 		} catch (SQLException e) {
@@ -31,7 +31,7 @@ public class EmpDAO extends DAO {
 		}
 		return list;
 	}
-	
+
 	public boolean insertEmp(Employee emp) {
 		connect();
 		String sql = "insert into empl_demo (employee_id, last_name, email, job_id, hire_date)\r\n"
@@ -53,7 +53,7 @@ public class EmpDAO extends DAO {
 			disconnect();
 		}
 	}
-	
+
 	public void updateEmp(String id, String phone, String salary) {
 		connect();
 		String sql = "update empl_demo set phone_number = ?, salary = ? where employee_id = ?";
@@ -64,7 +64,7 @@ public class EmpDAO extends DAO {
 			psmt.setString(3, id);
 			int r = psmt.executeUpdate();
 			System.out.println(r + "건 수정됨.");
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -72,6 +72,30 @@ public class EmpDAO extends DAO {
 		}
 	}
 	
+	public boolean updateEmployee(String id, String phone, String salary) {
+		connect();
+		String sql = "update empl_demo set phone_number = ?, salary = ? where employee_id = ?";
+		try {
+			psmt = conn.prepareStatement(sql);
+			psmt.setString(1, phone);
+			psmt.setString(2, salary);
+			psmt.setString(3, id);
+			int r = psmt.executeUpdate();
+			if(r > 0) {
+				System.out.println(r + "건 수정됨.");
+				return true;
+			} else {
+				return false;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			disconnect();
+		}
+		return false;
+	}
+
 	public void deleteEmp(int empId) {
 		connect(); // conn = dbconnection.Connection
 		String sql = "delete from empl_demo where employee_id = " + empId;
@@ -85,7 +109,7 @@ public class EmpDAO extends DAO {
 			disconnect();
 		}
 	}
-	
+
 	public int deleteEmployee(String empId) {
 		connect(); // conn = dbconnection.Connection
 		String sql = "delete from empl_demo where employee_id = " + empId;
@@ -94,7 +118,7 @@ public class EmpDAO extends DAO {
 			int r = stmt.executeUpdate(sql);
 			System.out.println(r + "건 삭제됨.");
 			return Integer.parseInt(empId);
-			
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -102,6 +126,28 @@ public class EmpDAO extends DAO {
 		}
 		return -1;
 	}
-	
-	
+
+	// 데이터가 있거나, 에러 =>
+	public boolean checkId(String id) {
+
+		connect();
+		String sql = "SELECT * FROM empl_demo where employee_id = ?";
+		try {
+			psmt = conn.prepareStatement(sql);
+			psmt.setString(1, id);
+			rs = psmt.executeQuery();
+
+			if (rs.next()) {
+				return false;
+			} else {
+				return true;
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			disconnect();
+		}
+		return false;
+	}
 }
